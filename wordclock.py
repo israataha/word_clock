@@ -144,13 +144,21 @@ class time_display:
     def show_time(self):
         now = datetime.datetime.now()
         hour = now.hour%12 + (1 if now.minute/5 >= 7 else 0)
-        minute = round(now.minute/5)
+        minute = now.minute/5
         taw_indices = self.prefix + \
                 self.minutes[minute] + \
                 list(self.hours[hour]) + \
                 (list(self.full_hour) if (minute == 0) else [])
 
         print(taw_indices)
+        #Set all LEDs back to black
+        for i in range(LED_COUNT):
+                strip.setPixelColor(i, Color(  0,  0,  0))
+
+        for i in range(len(taw_indices)):
+                strip.setPixelColor(taw_indices[i], Color(255,255, 50))
+                strip.show()
+                #time.sleep(1.0/self.typewriter_speed)
 
 class wordclock:
     def __init__(self):
