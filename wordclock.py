@@ -81,10 +81,10 @@ def show_time(strip):
     print(taw_indices)
 
     #Set all LEDs back to black
-    for i in range(LED_COUNT)
+    for i in range(LED_COUNT):
         strip.setPixelColor(i, Color(0,0,0))
 
-    for i in range(len(taw_indices))
+    for i in range(len(taw_indices)):
         strip.setPixelColor(taw_indices[i], Color(255,255,255))
 
     strip.show()
