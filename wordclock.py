@@ -2,6 +2,7 @@ import os
 import time
 import datetime
 import fontdemo
+import RPi.GPIO as GPIO
 #import birthdays
 from neopixel import *
 
@@ -21,6 +22,10 @@ LED_CHANNEL = 0
 LED_STRIP = ws.WS2811_STRIP_GRB
 
 GAIN = 1
+
+GPIO_PIN_IN  = 25
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(GPIO_PIN_IN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 prefix = list(range(7,9)) + list(range(10,12)) # -> IT IS
 
@@ -205,7 +210,7 @@ if __name__ == '__main__':
     strip.begin()
 
     # Create an ADS1115 ADC (16-bit) instance.
-    adc = Adafruit_ADS1x15.ADS1115()
+    # adc = Adafruit_ADS1x15.ADS1115()
     
     prev_date = datetime.date(1900,1,1)
     prev_min = -1
@@ -213,19 +218,36 @@ if __name__ == '__main__':
     show_birthday_message = False
     birthday_name = ''
 
-    while True:
-        adc_value = adc.read_adc(3, GAIN)
-        set_brightness(strip, adc_value)
+    try:
+        while True:
         
-        # Get current date and time
-        today = datetime.date.today()
-        now = datetime.datetime.now()
-        
-        # Check, if a minute has passed (to render the new time)
-        #if prev_min < now.minute:
-        show_time(strip)
-        	
-        #    prev_min = -1 if now.minute == 59 else now.minute
+            # adc_value = adc.read_adc(3, GAIN)
+            # set_brightness(strip, adc_value)
+            
+            input_state = GPIO.input(GPIO_PIN_IN)
+            if GPIO.input(GPIO_PIN_IN) == 0:
+            #print "Button is pressed"
+                time.sleep(2)
+                if GPIO.input(GPIO_PIN_IN) == 0:
+                    #print "Long Press"
+                    setColorToAll(strip, Color(0,0,0))
+                    strip.show()
+                    GPIO.cleanup()
+                    os.system("sudo shutdown -h now")
+                
+            # Get current date and time
+            today = datetime.date.today()
+            now = datetime.datetime.now()
+            
+            # Check, if a minute has passed (to render the new time)
+            #if prev_min < now.minute:
+            show_time(strip)
+                    
+            #    prev_min = -1 if now.minute == 59 else now.minute
 
-        time.sleep(5)
+            time.sleep(5)
+    except KeyboardInterrupt:
+        setColorToAll(strip, Color(0,0,0))
+        strip.show()
+        GPIO.cleanup()
 
